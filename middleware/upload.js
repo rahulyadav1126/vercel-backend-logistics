@@ -4,8 +4,9 @@ const fs = require('fs');
 
 let storage;
 const useCloudinary = !!process.env.CLOUDINARY_CLOUD_NAME;
+const isVercel = !!process.env.VERCEL || process.env.NODE_ENV === 'production';
 
-if (useCloudinary) {
+if (useCloudinary || isVercel) {
   storage = multer.memoryStorage();
 } else {
   // Ensure uploads directory exists
@@ -56,7 +57,7 @@ const uploadToCloudinary = (fileBuffer, originalName) => {
 
   return new Promise((resolve, reject) => {
     const ext = path.extname(originalName).toLowerCase();
-    let resource_type = 'auto';
+    let resource_type = 'image';
     if (ext === '.pdf' || ext === '.doc' || ext === '.docx') {
       resource_type = 'raw';
     }
@@ -87,16 +88,22 @@ const upload = {
     return (req, res, next) => {
       originalMiddleware(req, res, async (err) => {
         if (err) return next(err);
-        if (!req.file || !useCloudinary) return next();
+        if (!req.file) return next();
 
-        try {
-          const result = await uploadToCloudinary(req.file.buffer, req.file.originalname);
-          // Set filename to public_id and path to the secure URL
-          req.file.filename = result.public_id;
-          req.file.path = result.secure_url;
+        if (useCloudinary) {
+          try {
+            const result = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+            // Set filename to public_id and path to the secure URL
+            req.file.filename = result.public_id;
+            req.file.path = result.secure_url;
+            next();
+          } catch (uploadErr) {
+            next(uploadErr);
+          }
+        } else if (isVercel) {
+          return next(new Error('Cloudinary environment variables are missing but required for Vercel production.'));
+        } else {
           next();
-        } catch (uploadErr) {
-          next(uploadErr);
         }
       });
     };
