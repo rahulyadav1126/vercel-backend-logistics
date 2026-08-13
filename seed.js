@@ -34,7 +34,7 @@ const seedData = async () => {
   password: hashedPassword,
   role: 'admin',
     });
-   
+  
 
     // Seed Services
     const services = [
