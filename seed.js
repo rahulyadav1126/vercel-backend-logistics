@@ -29,10 +29,10 @@ const seedData = async () => {
     // const hashedPassword = await bcrypt.hash('adminpassword123', salt);
 
     const admin = await User.create({
-      name: 'Corporate Admin',
-      email: 'admin@logisticsco.com',
-      password:    'adminpassword123',  //hashedPassword,
-      role: 'admin',
+     name: process.env.ADMIN_NAME || 'Corporate Admin',
+  email: process.env.ADMIN_EMAIL,
+  password: hashedPassword,
+  role: 'admin',
     });
     // console.log('Admin user seeded: admin@logisticsco.com / adminpassword123');
 
