@@ -93,7 +93,6 @@
 // });
 
 // module.exports = app;
-
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -109,39 +108,10 @@ const app = express();
 // CORS CONFIGURATION
 // ========================================
 
-const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL
-      .split(',')
-      .map((origin) => origin.trim().replace(/\/$/, ''))
-  : [
-      'http://localhost:3000',
-      'http://localhost:5173',
-    ];
-
-console.log('CORS allowed origins:', allowedOrigins);
-
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests without Origin
-      // Example: Postman, server-to-server requests
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      const cleanOrigin = origin.replace(/\/$/, '');
-
-      if (allowedOrigins.includes(cleanOrigin)) {
-        return callback(null, true);
-      }
-
-      console.log('CORS blocked:', origin);
-
-      return callback(new Error('Not allowed by CORS'));
-    },
-
+    origin: 'https://vercel-frontend-logistics-a22l.vercel.app',
     credentials: true,
-
     methods: [
       'GET',
       'POST',
@@ -150,7 +120,6 @@ app.use(
       'DELETE',
       'OPTIONS',
     ],
-
     allowedHeaders: [
       'Content-Type',
       'Authorization',
@@ -193,7 +162,10 @@ const quoteRoutes = require('./routes/quoteRoutes');
 const careerRoutes = require('./routes/careerRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 
-// API Routes
+// ========================================
+// API ROUTES
+// ========================================
+
 app.use('/api/auth', authRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/gallery', galleryRoutes);
@@ -208,10 +180,22 @@ app.use('/api/upload', uploadRoutes);
 // ========================================
 
 app.get('/', (req, res) => {
-  res.json({
+  res.status(200).json({
     success: true,
     message: 'Welcome to Logistics and Manpower API',
     version: '1.0.0',
+  });
+});
+
+// ========================================
+// HEALTH CHECK
+// ========================================
+
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Backend is running',
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -232,7 +216,10 @@ app.use((req, res) => {
 // ========================================
 
 app.use((err, req, res, next) => {
-  console.error('Server Error:', err);
+  console.error('================================');
+  console.error('SERVER ERROR');
+  console.error(err);
+  console.error('================================');
 
   res.status(err.status || 500).json({
     success: false,
@@ -259,11 +246,11 @@ if (!process.env.VERCEL) {
 }
 
 // ========================================
-// UNHANDLED PROMISE REJECTION
+// UNHANDLED REJECTION
 // ========================================
 
 process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Promise Rejection:', err);
+  console.error('UNHANDLED PROMISE REJECTION:', err);
 
   if (server) {
     server.close(() => {
@@ -275,7 +262,23 @@ process.on('unhandledRejection', (err) => {
 });
 
 // ========================================
-// EXPORT APP FOR VERCEL
+// UNCAUGHT EXCEPTION
+// ========================================
+
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION:', err);
+
+  if (server) {
+    server.close(() => {
+      process.exit(1);
+    });
+  } else {
+    process.exit(1);
+  }
+});
+
+// ========================================
+// EXPORT FOR VERCEL
 // ========================================
 
 module.exports = app;
