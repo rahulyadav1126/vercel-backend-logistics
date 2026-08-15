@@ -110,7 +110,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: 'https://vercel-frontend-logistics-a22l.vercel.app',
+    origin: 'https://vercel-frontend-logistics.vercel.app',
     credentials: true,
     methods: [
       'GET',
