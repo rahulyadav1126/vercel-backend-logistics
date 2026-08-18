@@ -98,23 +98,8 @@ exports.getStats = async (req, res) => {
     // Recent Contacts
     const recentContacts = await Contact.find().sort({ createdAt: -1 }).limit(5);
 
-    // res.status(200).json({
-    //   success: true,
-    // stats: {
-    //   services: servicesCount,
-    //   gallery: galleryCount,
-    //   testimonials: testimonialsCount,
-    //   contacts: contactsCount,
-    //   quotes: quotesCount,
-    //   careers: careersCount,
-    //   applications: applicationsCount,
-    //   pendingContacts,
-    //   pendingQuotes,
-    //   pendingApplications,
-    // },
-    //   recentQuotes,
-    //   recentContacts,
-    // });
+  
+    
     res.status(200).json({
       success: true,
       data: {

@@ -238,8 +238,7 @@ let server;
 if (!process.env.VERCEL) {
   server = app.listen(PORT, () => {
     console.log(
-      `Server running in ${
-        process.env.NODE_ENV || 'development'
+      `Server running in ${process.env.NODE_ENV || 'development'
       } mode on port ${PORT}`
     );
   });
